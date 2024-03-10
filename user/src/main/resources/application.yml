@@ -1,0 +1,50 @@
+server:
+  port: 8083
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://db:3306/user?createDatabaseIfNotExist=true&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+    type: com.zaxxer.hikari.HikariDataSource
+  jpa:
+    show-sql: true
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+  cloud:
+    circuitbreaker:
+      retry:
+        max-attempts: 5
+        backoff:
+          first-backoff: 500ms
+          multiplier: 1.5
+          max-backoff: 2000ms
+        exceptions-to-include: feign.FeignException
+
+external-api:
+  url: http://localhost:8082
+
+resilience4j.circuitbreaker:
+  instances:
+    externalApiFailure:
+      registerHealthIndicator: true
+      slidingWindowSize: 10
+      minimumNumberOfCalls: 5
+      permittedNumberOfCallsInHalfOpenState: 3
+      automaticTransitionFromOpenToHalfOpenEnabled: true
+      waitDurationInOpenState: 60s
+      failureRateThreshold: 1
+      eventConsumerBufferSize: 10
+      recordExceptions:
+        - feign.FeignException
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - info
+          - metrics

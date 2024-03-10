@@ -1,0 +1,30 @@
+version: '3.1'
+services:
+  db:
+    image: mysql
+    container_name: user-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - 3306:3306
+  external-api:
+    container_name: external-api
+    build: ./external-api
+    image: external-api-application
+    ports:
+      - "8082:8082"
+    volumes:
+        - maven-repository:/usr/share/maven/ref/repository
+  user:
+    container_name: user
+    build: ./user
+    image: user-application
+    ports:
+      - "8083:8083"
+    volumes:
+      - maven-repository:/usr/share/maven/ref/repository
+    depends_on:
+        - db
+
+volumes:
+    maven-repository:

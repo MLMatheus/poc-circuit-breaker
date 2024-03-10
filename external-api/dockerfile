@@ -1,0 +1,23 @@
+FROM maven:3.8.4 AS build
+
+# Defina o diretório de trabalho como /app
+WORKDIR /app
+
+# Copie apenas o arquivo POM para o contêiner
+COPY pom.xml .
+
+# Baixe apenas as dependências do Maven para o contêiner
+RUN mvn -B dependency:go-offline -Dmaven.repo.local=/usr/share/maven/ref/repository
+COPY . .
+RUN mvn -B clean package -DskipTests -Dmaven.repo.local=/usr/share/maven/ref/repository
+
+FROM openjdk:18-jdk-alpine
+
+# Defina o diretório de trabalho como /app
+WORKDIR /app
+
+# Copiar o arquivo JAR para o contêiner
+COPY --from=build /app/target/*.jar app.jar
+
+# Definir comando de entrada
+ENTRYPOINT ["java", "-jar", "app.jar"]

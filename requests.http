@@ -1,0 +1,23 @@
+@base_url = http://localhost:8083
+
+###
+#Criar usuário
+
+POST {{base_url}}/user HTTP/1.1
+Content-Type: application/json
+
+{
+    "username": "matheus_lima",
+    "email": "matheus@gmail.com",
+    "password": "Matheus123"
+}
+
+###
+# Buscar todas as métricas disponíveis
+
+GET {{base_url}}/actuator/metrics HTTP/1.1
+
+###
+# Buscar por uma métrica específica
+
+GET {{base_url}}/actuator/metrics/metric.name HTTP/1.1
